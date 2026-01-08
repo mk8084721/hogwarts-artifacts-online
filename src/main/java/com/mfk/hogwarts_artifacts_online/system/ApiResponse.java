@@ -1,4 +1,4 @@
-package com.mfk.hogwarts_artifacts_online;
+package com.mfk.hogwarts_artifacts_online.system;
 
 import lombok.*;
 

@@ -36,7 +36,7 @@ class ArtifactServiceTest {
     }
 
     @Test
-    void TestFindByIdSucess() {
+    void TestFindByIdSuccess() {
         // Given . Arrange inputs and targets , Define the behavior of Mock object artifactRepository
         /*
           "id": "1250808601744904191",
@@ -58,8 +58,8 @@ class ArtifactServiceTest {
         Wizard wizard = new Wizard();
         wizard.setId(1);
         wizard.setName("Albus Dumbledore");
-
         artifact.setOwner(wizard);
+
         given(artifactRepository.findById("1250808601744904191")).willReturn(Optional.of(artifact)); //Defines the behavior of the mock object
 
         // When . Act on the target behaviour , When steps should cover the method to be tested.
