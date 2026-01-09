@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -21,5 +22,10 @@ public class Wizard implements Serializable {
     private Integer id;
     private String name;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "owner")
-    private List<Artifact> artifacts;
+    private List<Artifact> artifacts = new ArrayList<>();
+
+    public void addArtifact(Artifact artifact) {
+        artifact.setOwner(this);
+        this.artifacts.add(artifact);
+    }
 }
