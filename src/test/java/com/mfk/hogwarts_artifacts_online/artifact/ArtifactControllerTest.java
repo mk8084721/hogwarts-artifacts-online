@@ -1,0 +1,124 @@
+package com.mfk.hogwarts_artifacts_online.artifact;
+
+import com.mfk.hogwarts_artifacts_online.system.StatusCode;
+import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class ArtifactControllerTest {
+    @Autowired
+    MockMvc mockMvc;
+    @MockitoBean
+    ArtifactService artifactService;
+    List<Artifact> artifacts;
+
+    @BeforeEach
+    void setUp() {
+        this.artifacts = new ArrayList<>();
+
+        Artifact a1 = new Artifact();
+        a1.setId("1");
+        a1.setName("Deluminator 1");
+        a1.setDescription("Description 1");
+        a1.setImageUrl("ImageUrl 1");
+        this.artifacts.add(a1);
+
+        Artifact a2 = new Artifact();
+        a2.setId("2");
+        a2.setName("Deluminator 2");
+        a2.setDescription("Description 2");
+        a2.setImageUrl("ImageUrl 2");
+        this.artifacts.add(a2);
+
+        Artifact a3 = new Artifact();
+        a3.setId("3");
+        a3.setName("Deluminator 3");
+        a3.setDescription("Description 3");
+        a3.setImageUrl("ImageUrl 3");
+        this.artifacts.add(a3);
+
+        Artifact a4 = new Artifact();
+        a4.setId("4");
+        a4.setName("Deluminator 4");
+        a4.setDescription("Description 4");
+        a4.setImageUrl("ImageUrl 4");
+        this.artifacts.add(a4);
+
+        Artifact a5 = new Artifact();
+        a5.setId("5");
+        a5.setName("Deluminator 5");
+        a5.setDescription("Description 5");
+        a5.setImageUrl("ImageUrl 5");
+        this.artifacts.add(a5);
+
+        Artifact a6 = new Artifact();
+        a6.setId("6");
+        a6.setName("Deluminator 6");
+        a6.setDescription("Description 6");
+        a6.setImageUrl("ImageUrl 6");
+        this.artifacts.add(a6);
+    }
+
+    @AfterEach
+    void tearDown() {
+    }
+
+    @Test
+    void testFindArtifactByIdSuccess() throws Exception {
+        //Given.
+        Artifact artifact = new Artifact();
+        artifact.setId("1250808601744904191");
+        artifact.setName("Deluminator");
+        artifact.setDescription("A Deluminator is a device invented by Albus Dumbledore that resembles a cigarette lighter. It is used to remove or absorb (as well as return) the light from any light source to provide cover to the user.");
+        artifact.setImageUrl("ImageUrl");
+
+        Wizard wizard = new Wizard();
+        wizard.setId(1);
+        wizard.setName("Albus Dumbledore");
+        artifact.setOwner(wizard);
+
+        given(artifactService.findById("1250808601744904191"))
+                .willReturn(artifact);
+
+        //When and Then.
+        this.mockMvc.perform(get("/api/v1/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Find One Success"))
+                .andExpect(jsonPath("$.data.id").value(artifact.getId()))
+                .andExpect(jsonPath("$.data.description").value(artifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(artifact.getImageUrl()))
+                .andExpect(jsonPath("$.data.name").value(artifact.getName()));
+
+    }
+    @Test
+    void testFindArtifactByIdNotFound() throws Exception {
+        //Given.
+        given(artifactService.findById("anyId"))
+                .willThrow(new ArtifactNotFoundException("anyId"));
+
+        //When and Then.
+        this.mockMvc.perform(get("/api/v1/artifacts/anyId").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find artifact with id anyId :("))
+                .andExpect(jsonPath("$.data").isEmpty());
+
+    }
+}
