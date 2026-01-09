@@ -1,5 +1,6 @@
 package com.mfk.hogwarts_artifacts_online.wizard;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,5 +28,9 @@ public class Wizard implements Serializable {
     public void addArtifact(Artifact artifact) {
         artifact.setOwner(this);
         this.artifacts.add(artifact);
+    }
+
+    public Integer getNumberOfArtifacts() {
+        return this.getArtifacts().size();
     }
 }

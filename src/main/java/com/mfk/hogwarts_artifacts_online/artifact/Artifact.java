@@ -2,6 +2,7 @@ package com.mfk.hogwarts_artifacts_online.artifact;
 
 import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class Artifact implements Serializable {
     private String name;
     private String description;
     private String imageUrl;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Wizard owner;
 
 }
