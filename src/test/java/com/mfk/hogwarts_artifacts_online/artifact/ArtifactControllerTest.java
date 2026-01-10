@@ -1,14 +1,20 @@
 package com.mfk.hogwarts_artifacts_online.artifact;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mfk.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
 import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -17,15 +23,19 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class ArtifactControllerTest {
     @Autowired
     MockMvc mockMvc;
     @MockitoBean
     ArtifactService artifactService;
+    @Autowired
+    ObjectMapper objectMapper;
     List<Artifact> artifacts;
 
     @BeforeEach
@@ -119,6 +129,48 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find artifact with id anyId :("))
                 .andExpect(jsonPath("$.data").isEmpty());
+
+    }
+
+    @Test
+    void testFindAllArtifactsSuccess() throws Exception {
+        //Given.
+        given(artifactService.findAll())
+                .willReturn(artifacts);
+        //When and Then.
+        this.mockMvc.perform(get("/api/v1/artifacts").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Find All Success"))
+                .andExpect(jsonPath("$.data", Matchers.hasSize(artifacts.size())))
+                .andExpect(jsonPath("$.data[0].id").value(artifacts.get(0).getId()))
+                .andExpect(jsonPath("$.data[1].id").value(artifacts.get(1).getId()))
+                .andExpect(jsonPath("$.data[2].id").value(artifacts.get(2).getId()));
+    }
+
+    @Test
+    void testAddArtifactSuccess() throws Exception {
+        //Given.
+        ArtifactDto artifactDto = new ArtifactDto(null,
+                "new",
+                "newDesc",
+                "newImage",
+                null
+        );
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+        Artifact newArtifact = new Artifact("newArtifact", "newDescription","newImageUrl");
+        newArtifact.setId("678910");
+        given(artifactService.save(Mockito.any(Artifact.class))).willReturn(newArtifact);
+
+        //When and Then.
+        this.mockMvc.perform(post("/api/v1/artifacts").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Add Success"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").value(newArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(newArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(newArtifact.getImageUrl()));
 
     }
 }
