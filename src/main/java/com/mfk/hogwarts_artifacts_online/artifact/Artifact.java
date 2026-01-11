@@ -13,7 +13,6 @@ import java.io.Serializable;
 @Entity
 public class Artifact implements Serializable {
     @Id
-    @GeneratedValue
     private String id;
     private String name;
     private String description;

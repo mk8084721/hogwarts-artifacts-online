@@ -5,6 +5,7 @@ import com.mfk.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import com.mfk.hogwarts_artifacts_online.artifact.converter.ArtifactToArtifactDtoConverter;
 import com.mfk.hogwarts_artifacts_online.system.ApiResponse;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,7 @@ public class ArtifactController {
         );
     }
     @PostMapping("/api/v1/artifacts")
-    public ApiResponse addArtifact(@RequestBody ArtifactDto artifactDto){
+    public ApiResponse addArtifact(@Valid @RequestBody ArtifactDto artifactDto){
 
         Artifact newArtifact = artifactDtoToArtifactConverter.convert(artifactDto);
         Artifact savedArtifact = artifactService.save(newArtifact);

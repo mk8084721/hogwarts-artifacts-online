@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 class ArtifactControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -151,7 +151,8 @@ class ArtifactControllerTest {
     @Test
     void testAddArtifactSuccess() throws Exception {
         //Given.
-        ArtifactDto artifactDto = new ArtifactDto(null,
+        ArtifactDto artifactDto = new ArtifactDto(
+                null,
                 "new",
                 "newDesc",
                 "newImage",
