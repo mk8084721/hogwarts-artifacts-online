@@ -1,4 +1,4 @@
-package com.mfk.hogwarts_artifacts_online.converter;
+package com.mfk.hogwarts_artifacts_online.wizard.converter;
 
 import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
 import com.mfk.hogwarts_artifacts_online.wizard.dto.WizardDto;

@@ -6,10 +6,12 @@ import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
 import com.mfk.hogwarts_artifacts_online.wizard.WizardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+//@Profile("!test")
 public class DBDataInitializer implements CommandLineRunner {
 
     private final ArtifactRepository artifactRepository;
