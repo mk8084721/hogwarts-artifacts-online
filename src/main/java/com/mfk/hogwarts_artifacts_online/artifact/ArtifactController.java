@@ -56,6 +56,18 @@ public class ArtifactController {
                 savedArtifactDto
         );
     }
+    @PutMapping("/api/v1/artifacts/{artifactId}")
+    public ApiResponse updateArtifact(@PathVariable String artifactId, @Valid @RequestBody ArtifactDto artifactDto){
+        Artifact update = artifactDtoToArtifactConverter.convert(artifactDto);
+        Artifact updatedArtifact = artifactService.update(artifactId, update);
+        ArtifactDto updatedArtifactDto = artifactToArtifactDtoConverter.convert(updatedArtifact);
+        return new ApiResponse(
+                true,
+                StatusCode.SUCCESS,
+                "Update Success",
+                updatedArtifactDto
+        );
+    }
 
 
 }

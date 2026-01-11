@@ -26,4 +26,12 @@ public class ArtifactService {
         newArtifact.setId(idWorker.nextId() +"");
         return artifactRepository.save(newArtifact);
     }
+    public Artifact update(String artifactId, Artifact update){
+        Artifact updatedArtifact = findById(artifactId);
+        updatedArtifact.setName(update.getName());
+        updatedArtifact.setDescription(update.getDescription());
+        updatedArtifact.setImageUrl(update.getImageUrl());
+
+        return artifactRepository.save(updatedArtifact);
+    }
 }

@@ -157,4 +157,35 @@ class ArtifactServiceTest {
         verify(artifactRepository, times(1)).save(newArtifact);
 
     }
+
+    @Test
+    void testUpdateSuccess() {
+        //Given.
+        Artifact oldArtifact = new Artifact();
+        oldArtifact.setId("1250808601744904191");
+        oldArtifact.setName("Deluminator");
+        oldArtifact.setDescription("A Deluminator is a device invented by Albus Dumbledore that resembles a cigarette lighter. It is used to remove or absorb (as well as return) the light from any light source to provide cover to the user.");
+        oldArtifact.setImageUrl("ImageUrl");
+        Artifact updatedArtifact = new Artifact(
+                "magic seif",
+                "a magic seif can appear when you want it bad",
+                "image/imageurl"
+        );
+        updatedArtifact.setId(oldArtifact.getId());
+
+        given(artifactRepository.findById(oldArtifact.getId())).willReturn(Optional.of(oldArtifact));
+        given(artifactRepository.save(Mockito.any(Artifact.class))).willReturn(updatedArtifact);
+
+        //When.
+        Artifact result = artifactService.update(oldArtifact.getId(), updatedArtifact);
+
+        //Then.
+        assertThat(result.getId()).isEqualTo(oldArtifact.getId());
+        assertThat(result.getName()).isEqualTo(updatedArtifact.getName());
+        assertThat(result.getDescription()).isEqualTo(updatedArtifact.getDescription());
+        assertThat(result.getImageUrl()).isEqualTo(updatedArtifact.getImageUrl());
+
+        verify(artifactRepository, times(1)).findById(oldArtifact.getId());
+        verify(artifactRepository, times(1)).save(Mockito.any(Artifact.class));
+    }
 }

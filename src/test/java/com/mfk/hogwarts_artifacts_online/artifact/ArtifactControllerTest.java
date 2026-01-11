@@ -21,9 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -173,5 +173,57 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data.description").value(newArtifact.getDescription()))
                 .andExpect(jsonPath("$.data.imageUrl").value(newArtifact.getImageUrl()));
 
+    }
+
+    @Test
+    void testUpdateArtifactSuccess() throws Exception {
+        //Given.
+        ArtifactDto artifactDto = new ArtifactDto(
+                null,
+                "updatedName",
+                "updatedDesc",
+                "updatedImage",
+                null
+        );
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+        Artifact updatedArtifact = new Artifact(
+                "updatedName",
+                "updatedDesc",
+                "updatedImage");
+        updatedArtifact.setId("678910");
+        given(artifactService.update(
+                eq("678910"),
+                Mockito.any(Artifact.class))).willReturn(updatedArtifact);
+        //When and Then.
+        this.mockMvc.perform(put("/api/v1/artifacts/678910").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Update Success"))
+                .andExpect(jsonPath("$.data.id").value("678910"))
+                .andExpect(jsonPath("$.data.name").value(updatedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(updatedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(updatedArtifact.getImageUrl()));
+    }
+
+    @Test
+    void testUpdateArtifactErrorIdNotFound() throws Exception {
+        //Given.
+        ArtifactDto artifactDto = new ArtifactDto(
+                null,
+                "updatedName",
+                "updatedDesc",
+                "updatedImage",
+                null
+        );
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+        given(artifactService.update(
+                eq("678910"),
+                Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("678910"));
+        //When and Then.
+        this.mockMvc.perform(put("/api/v1/artifacts/678910").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find artifact with id 678910 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 }
