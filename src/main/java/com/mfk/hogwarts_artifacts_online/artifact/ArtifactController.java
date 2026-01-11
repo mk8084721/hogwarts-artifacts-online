@@ -68,6 +68,15 @@ public class ArtifactController {
                 updatedArtifactDto
         );
     }
+    @DeleteMapping("/api/v1/artifacts/{artifactId}")
+    public ApiResponse deleteArtifact(@PathVariable String artifactId){
+        artifactService.delete(artifactId);
+        return new ApiResponse(
+                true,
+                StatusCode.SUCCESS,
+                "Delete Success"
+        );
+    }
 
 
 }

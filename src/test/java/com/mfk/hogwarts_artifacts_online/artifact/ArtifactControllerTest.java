@@ -23,6 +23,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -221,6 +223,31 @@ class ArtifactControllerTest {
                 Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("678910"));
         //When and Then.
         this.mockMvc.perform(put("/api/v1/artifacts/678910").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find artifact with id 678910 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+    @Test
+    public void testDeleteArtifactSuccess() throws Exception {
+        //Given
+        doNothing().when(artifactService).delete(eq("678910"));
+
+
+        this.mockMvc.perform(delete("/api/v1/artifacts/678910").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Delete Success"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+    @Test
+    public void testDeleteArtifactWithNonExistenId() throws Exception {
+        //Given
+        doThrow(new ArtifactNotFoundException("678910"))
+                .when(artifactService).delete(eq("678910"));
+
+
+        this.mockMvc.perform(delete("/api/v1/artifacts/678910").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find artifact with id 678910 :("))

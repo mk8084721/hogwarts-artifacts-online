@@ -19,9 +19,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ArtifactServiceTest {
@@ -128,7 +128,7 @@ class ArtifactServiceTest {
     }
 
     @Test
-    void testFindAllSucess() {
+    void testFindAllSuccess() {
         //Given
         given(artifactRepository.findAll()).willReturn(artifacts);
         //When
@@ -139,7 +139,7 @@ class ArtifactServiceTest {
     }
 
     @Test
-    void testSaveSucess() {
+    void testSaveSuccess() {
         //Given
         Artifact newArtifact = new Artifact("new name", "new desc", "newImage");
         given(idWorker.nextId()).willReturn(123456L);
@@ -187,5 +187,35 @@ class ArtifactServiceTest {
 
         verify(artifactRepository, times(1)).findById(oldArtifact.getId());
         verify(artifactRepository, times(1)).save(Mockito.any(Artifact.class));
+    }
+    @Test
+    public void testDeleteSuccess(){
+        //Given.
+        Artifact artifact = new Artifact();
+        artifact.setId("1250808601744904191");
+        artifact.setName("Deluminator");
+        artifact.setDescription("A Deluminator is a device invented by Albus Dumbledore that resembles a cigarette lighter. It is used to remove or absorb (as well as return) the light from any light source to provide cover to the user.");
+        artifact.setImageUrl("ImageUrl");
+        given(artifactRepository.findById(artifact.getId())).willReturn(Optional.of(artifact));
+        doNothing().when(artifactRepository).deleteById(eq("1250808601744904191"));
+
+        //When.
+        artifactService.delete("1250808601744904191");
+        //Then.
+        verify(artifactRepository, times(1)).deleteById("1250808601744904191");
+    }
+    @Test
+    public void deleteArtifactErrorNotFound(){
+        //Given.
+        given(artifactRepository.findById(Mockito.any(String.class))).willReturn(Optional.empty());
+        //When.
+        Throwable thrown = catchThrowable(()->{
+            artifactService.delete("anyId");
+        });
+        //Then
+        assertThat(thrown)
+                .isInstanceOf(ArtifactNotFoundException.class)
+                .hasMessage("Could not find artifact with id anyId :(");
+        verify(artifactRepository, times(1)).findById("anyId");
     }
 }

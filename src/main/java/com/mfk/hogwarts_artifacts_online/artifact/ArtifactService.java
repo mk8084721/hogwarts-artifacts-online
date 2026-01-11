@@ -34,4 +34,8 @@ public class ArtifactService {
 
         return artifactRepository.save(updatedArtifact);
     }
+    public void delete(String artifactId){
+        Artifact artifact = findById(artifactId);
+        artifactRepository.deleteById(artifactId);
+    }
 }
