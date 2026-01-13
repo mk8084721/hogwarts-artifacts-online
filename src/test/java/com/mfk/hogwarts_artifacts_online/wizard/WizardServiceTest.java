@@ -1,5 +1,6 @@
 package com.mfk.hogwarts_artifacts_online.wizard;
 
+import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
 import com.mfk.hogwarts_artifacts_online.artifact.ArtifactNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
@@ -17,10 +19,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -94,5 +96,67 @@ class WizardServiceTest {
         assertThat(thrown).isInstanceOf(WizardNotFoundException.class)
                 .hasMessage("Could not find artifact with Id 9 :(");
         verify(wizardRepository, times(1)).findById(9);
+    }
+    @Test
+    void testSaveSuccess() {
+        //Given
+        given(wizardRepository.save(Mockito.any(Wizard.class)))
+                .willReturn(wizards.get(0));
+
+        //When
+        Wizard savedWizard = wizardService.save(wizards.get(0));
+
+        //Then
+        assertThat(savedWizard.getId()).isEqualTo(1);
+        assertThat(savedWizard.getName()).isEqualTo(wizards.get(0).getName());
+
+        verify(wizardRepository, times(1)).save(wizards.get(0));
+
+    }
+
+    @Test
+    void testUpdateSuccess() {
+        //Given.
+        given(wizardRepository.findById(wizards.get(0).getId()))
+                .willReturn(Optional.of(wizards.get(0)));
+        given(wizardRepository.save(Mockito.any(Wizard.class)))
+                .willReturn(wizards.get(0));
+
+        //When.
+        Wizard result = wizardService.update(wizards.get(0).getId(), wizards.get(0));
+
+        //Then.
+        assertThat(result.getId()).isEqualTo(wizards.get(0).getId());
+        assertThat(result.getName()).isEqualTo(wizards.get(0).getName());
+
+        verify(wizardRepository, times(1)).findById(wizards.get(0).getId());
+        verify(wizardRepository, times(1)).save(Mockito.any(Wizard.class));
+    }
+    @Test
+    public void testDeleteSuccess(){
+        //Given.
+        given(wizardRepository.findById(wizards.get(0).getId()))
+                .willReturn(Optional.of(wizards.get(0)));
+        doNothing().when(wizardRepository).deleteById(eq(1));
+
+        //When.
+        wizardService.delete(1);
+        //Then.
+        verify(wizardRepository, times(1)).deleteById(1);
+    }
+    @Test
+    public void deleteWizardErrorNotFound(){
+        //Given.
+        given(wizardRepository.findById(Mockito.any(Integer.class)))
+                .willReturn(Optional.empty());
+        //When.
+        Throwable thrown = catchThrowable(()->{
+            wizardService.delete(5);
+        });
+        //Then
+        assertThat(thrown)
+                .isInstanceOf(WizardNotFoundException.class)
+                .hasMessage("Could not find artifact with Id 5 :(");
+        verify(wizardRepository, times(1)).findById(5);
     }
 }
