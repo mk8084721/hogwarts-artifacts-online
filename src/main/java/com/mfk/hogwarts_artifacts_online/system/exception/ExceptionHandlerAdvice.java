@@ -1,10 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.system.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfk.hogwarts_artifacts_online.system.ApiResponse;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
-import com.mfk.hogwarts_artifacts_online.artifact.ArtifactNotFoundException;
-import com.mfk.hogwarts_artifacts_online.wizard.WizardNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -19,9 +16,9 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
-    @ExceptionHandler(ArtifactNotFoundException.class)
+    @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ApiResponse handleArtifactNotFoundException(ArtifactNotFoundException ex){
+    ApiResponse handleArtifactOrWizardNotFoundException(Exception ex){
         return new ApiResponse(
                 false,
                 StatusCode.NOT_FOUND,
@@ -45,16 +42,5 @@ public class ExceptionHandlerAdvice {
                 map
         );
     }
-
-    @ExceptionHandler(WizardNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ApiResponse handleWizardNotFoundException(WizardNotFoundException ex){
-        return new ApiResponse(
-                false,
-                StatusCode.NOT_FOUND,
-                ex.getMessage()
-        );
-    }
-
 
 }

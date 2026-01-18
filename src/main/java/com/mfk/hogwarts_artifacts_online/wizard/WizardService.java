@@ -1,6 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.wizard;
 
 import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
+import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class WizardService {
 
     public Wizard findById(Integer id) {
         return wizardRepository.findById(id)
-                .orElseThrow(()->new WizardNotFoundException(id));
+                .orElseThrow(()->new ObjectNotFoundException("wizard", id));
     }
     public Wizard save(Wizard newWizard) {
         return wizardRepository.save(newWizard);
@@ -28,6 +29,7 @@ public class WizardService {
     }
     public void delete(Integer wizardId){
         Wizard wizard = findById(wizardId);
+        wizard.removeAllArtifacts();
         wizardRepository.deleteById(wizardId);
     }
 }

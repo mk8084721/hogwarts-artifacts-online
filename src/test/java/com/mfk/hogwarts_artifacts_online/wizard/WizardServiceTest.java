@@ -1,27 +1,23 @@
 package com.mfk.hogwarts_artifacts_online.wizard;
 
-import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
-import com.mfk.hogwarts_artifacts_online.artifact.ArtifactNotFoundException;
+import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 
@@ -93,8 +89,8 @@ class WizardServiceTest {
             Wizard returnedWizard = wizardService.findById(9);
         });
         //Then.
-        assertThat(thrown).isInstanceOf(WizardNotFoundException.class)
-                .hasMessage("Could not find artifact with Id 9 :(");
+        assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find wizard with id 9 :(");
         verify(wizardRepository, times(1)).findById(9);
     }
     @Test
@@ -155,8 +151,8 @@ class WizardServiceTest {
         });
         //Then
         assertThat(thrown)
-                .isInstanceOf(WizardNotFoundException.class)
-                .hasMessage("Could not find artifact with Id 5 :(");
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find wizard with id 5 :(");
         verify(wizardRepository, times(1)).findById(5);
     }
 }
