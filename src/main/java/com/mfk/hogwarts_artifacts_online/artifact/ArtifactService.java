@@ -1,6 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.artifact;
 
 import com.mfk.hogwarts_artifacts_online.artifact.utils.IdWorker;
+import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class ArtifactService {
 
     public Artifact findById(String artifactId){
         return artifactRepository.findById(artifactId)
-                .orElseThrow(()-> new ArtifactNotFoundException(artifactId));
+                .orElseThrow(()-> new ObjectNotFoundException("artifact",artifactId));
     }
     public List<Artifact> findAll(){
         return artifactRepository.findAll();

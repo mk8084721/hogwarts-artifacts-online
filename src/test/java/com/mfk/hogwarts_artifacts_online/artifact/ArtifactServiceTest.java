@@ -1,6 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.artifact;
 
 import com.mfk.hogwarts_artifacts_online.artifact.utils.IdWorker;
+import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,7 +123,7 @@ class ArtifactServiceTest {
                 });
         //Then
         assertThat(thrown)
-                .isInstanceOf(ArtifactNotFoundException.class)
+                .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Could not find artifact with id anyId :(");
         verify(artifactRepository, times(1)).findById("anyId");
     }
@@ -214,7 +215,7 @@ class ArtifactServiceTest {
         });
         //Then
         assertThat(thrown)
-                .isInstanceOf(ArtifactNotFoundException.class)
+                .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Could not find artifact with id anyId :(");
         verify(artifactRepository, times(1)).findById("anyId");
     }

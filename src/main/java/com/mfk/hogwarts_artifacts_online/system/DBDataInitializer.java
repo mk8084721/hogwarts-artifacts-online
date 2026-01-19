@@ -63,20 +63,17 @@ public class DBDataInitializer implements CommandLineRunner {
 //        a6.setOwner(null);
 
         Wizard dumbledore = new Wizard();
-        dumbledore.setId(1);
         dumbledore.setName("Albus Dumbledore");
         dumbledore.addArtifact(a1);
         dumbledore.addArtifact(a3);
 
         Wizard harry = new Wizard();
-        harry.setId(2);
         harry.setName("Harry Potter");
         harry.addArtifact(a2);
         harry.addArtifact(a4);
 
 
         Wizard neville = new Wizard();
-        neville.setId(3);
         neville.setName("Neville Longbottom");
         neville.addArtifact(a5);
 
