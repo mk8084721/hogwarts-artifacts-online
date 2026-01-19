@@ -2,6 +2,8 @@ package com.mfk.hogwarts_artifacts_online.system;
 
 import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
 import com.mfk.hogwarts_artifacts_online.artifact.ArtifactRepository;
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.HogwartsUser;
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.HogwartsUserRepository;
 import com.mfk.hogwarts_artifacts_online.wizard.Wizard;
 import com.mfk.hogwarts_artifacts_online.wizard.WizardRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ public class DBDataInitializer implements CommandLineRunner {
 
     private final ArtifactRepository artifactRepository;
     private final WizardRepository wizardRepository;
+    private final HogwartsUserRepository hogwartsUserRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -77,11 +80,31 @@ public class DBDataInitializer implements CommandLineRunner {
         neville.setName("Neville Longbottom");
         neville.addArtifact(a5);
 
+        HogwartsUser user1 = new HogwartsUser();
+        user1.setUsername("john");
+        user1.setEnabled(true);
+        user1.setRoles("admin user");
+
+        HogwartsUser user2 = new HogwartsUser();
+        user2.setUsername("eric");
+        user2.setEnabled(true);
+        user2.setRoles("user");
+
+        HogwartsUser user3 = new HogwartsUser();
+        user3.setUsername("tom");
+        user3.setEnabled(false);
+        user3.setRoles("user");
+
+
         wizardRepository.save(dumbledore);
         wizardRepository.save(harry);
         wizardRepository.save(neville);
 
         artifactRepository.save(a6);
+
+        hogwartsUserRepository.save(user1);
+        hogwartsUserRepository.save(user2);
+        hogwartsUserRepository.save(user3);
 
     }
 }
