@@ -1,6 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.wizard;
 
 import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
+import com.mfk.hogwarts_artifacts_online.artifact.ArtifactRepository;
 import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WizardService {
     private final WizardRepository wizardRepository;
+    private final ArtifactRepository artifactRepository;
     public List<Wizard> findAll() {
         return wizardRepository.findAll();
     }
@@ -31,5 +33,18 @@ public class WizardService {
         Wizard wizard = findById(wizardId);
         wizard.removeAllArtifacts();
         wizardRepository.deleteById(wizardId);
+    }
+
+    public void assignArtifacts(Integer wizardId, String artifactId){
+        Wizard wizard = wizardRepository.findById(wizardId)
+                .orElseThrow(()->new ObjectNotFoundException("wizard",wizardId));
+
+        Artifact artifact = artifactRepository.findById(artifactId)
+                .orElseThrow(()->new ObjectNotFoundException("artifact",artifactId));
+        // we need to see if the artifact is owned by a wizard
+        if(artifact.getOwner() != null){
+            artifact.getOwner().removeArtifact(artifact);
+        }
+        wizard.addArtifact(artifact);
     }
 }
