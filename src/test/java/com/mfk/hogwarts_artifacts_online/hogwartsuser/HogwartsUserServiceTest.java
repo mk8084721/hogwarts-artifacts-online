@@ -1,5 +1,6 @@
 package com.mfk.hogwarts_artifacts_online.hogwartsuser;
 
+import com.mfk.hogwarts_artifacts_online.artifact.Artifact;
 import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class HogwartsUserServiceTest {
@@ -170,6 +170,33 @@ class HogwartsUserServiceTest {
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Could not find user with id 1 :(");
         verify(hogwartsUserRepository, times(1)).findById(1);
+    }
+
+    @Test
+    public void testDeleteUserSuccess(){
+        //Given.
+        given(hogwartsUserRepository.findById(users.get(0).getId()))
+                .willReturn(Optional.of(users.get(0)));
+        doNothing().when(hogwartsUserRepository).delete(users.get(0));
+
+        //When.
+        hogwartsUserService.delete(1);
+        //Then.
+        verify(hogwartsUserRepository, times(1)).delete(Mockito.any(HogwartsUser.class));
+    }
+    @Test
+    public void deleteArtifactErrorNotFound(){
+        //Given.
+        given(hogwartsUserRepository.findById(Mockito.any(Integer.class))).willReturn(Optional.empty());
+        //When.
+        Throwable thrown = catchThrowable(()->{
+            hogwartsUserService.delete(21);
+        });
+        //Then
+        assertThat(thrown)
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find user with id 21 :(");
+        verify(hogwartsUserRepository, times(1)).findById(21);
     }
 
 }

@@ -37,4 +37,10 @@ public class HogwartsUserService {
 
         return hogwartsUserRepository.save(foundedHogwartsUser);
     }
+
+    public void delete(Integer userId) {
+        HogwartsUser foundedHogwartsUser = hogwartsUserRepository.findById(userId)
+                .orElseThrow(()->new ObjectNotFoundException("user",userId));
+        hogwartsUserRepository.delete(foundedHogwartsUser);
+    }
 }

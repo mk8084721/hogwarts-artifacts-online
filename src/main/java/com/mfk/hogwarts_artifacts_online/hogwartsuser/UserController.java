@@ -77,7 +77,12 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ApiResponse deleteUserById(@PathVariable Integer userId){
-        return null;
+        hogwartsUserService.delete(userId);
+        return new ApiResponse(
+                true,
+                StatusCode.SUCCESS,
+                "Delete Success"
+        );
     }
 
 

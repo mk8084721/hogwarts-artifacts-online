@@ -23,6 +23,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -294,5 +296,30 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
                 .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
                 .andExpect(jsonPath("$.data.username").value("invalid username format"));
+    }
+    @Test
+    public void testDeleteUserSuccess() throws Exception {
+        //Given
+        doNothing().when(hogwartsUserService).delete(eq(1));
+
+
+        this.mockMvc.perform(delete(baseUrl + "/users/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Delete Success"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+    @Test
+    public void testDeleteUserWithNonExistenId() throws Exception {
+        //Given
+        doThrow(new ObjectNotFoundException("user",1))
+                .when(hogwartsUserService).delete(eq(1));
+
+
+        this.mockMvc.perform(delete(baseUrl + "/users/1").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find user with id 1 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 }
