@@ -1,5 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.hogwartsuser;
 
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.converter.HogwartsUserDtoToHogwartsUserConverter;
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.converter.HogwartsUserRequestToHogwartsUserConverter;
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.converter.HogwartsUserToHogwartsUserDtoConverter;
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserDto;
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserRequest;
@@ -17,6 +19,8 @@ import java.util.List;
 public class UserController {
     private final HogwartsUserService hogwartsUserService;
     private final HogwartsUserToHogwartsUserDtoConverter hogwartsUserToHogwartsUserDtoConverter;
+    private final HogwartsUserDtoToHogwartsUserConverter hogwartsUserDtoToHogwartsUserConverter;
+    private final HogwartsUserRequestToHogwartsUserConverter hogwartsUserRequestToHogwartsUserConverter;
 
     @GetMapping
     public ApiResponse findAllUsers(){
@@ -45,12 +49,7 @@ public class UserController {
 
     @PostMapping
     public ApiResponse saveUser(@RequestBody @Valid HogwartsUserRequest request){
-        HogwartsUser requestHogwartsUser = new HogwartsUser();
-        requestHogwartsUser.setUsername(request.username());
-        requestHogwartsUser.setPassword(request.password());
-        requestHogwartsUser.setEnabled(request.enabled());
-        requestHogwartsUser.setRoles(request.roles());
-
+        HogwartsUser requestHogwartsUser = hogwartsUserRequestToHogwartsUserConverter.convert(request);
         HogwartsUser savedHogwartsUser = hogwartsUserService.save(requestHogwartsUser);
         HogwartsUserDto hogwartsUserDto = hogwartsUserToHogwartsUserDtoConverter
                 .convert(savedHogwartsUser);
@@ -64,7 +63,16 @@ public class UserController {
 
     @PutMapping("/{userId}")
     public ApiResponse updateUserById(@PathVariable Integer userId,@RequestBody @Valid HogwartsUserDto update){
-        return null;
+        HogwartsUser hogwartsUserUpdate = hogwartsUserDtoToHogwartsUserConverter.convert(update);
+        HogwartsUser updatedHogwartsUser = hogwartsUserService.updateById(userId, hogwartsUserUpdate);
+        HogwartsUserDto hogwartsUserDto = hogwartsUserToHogwartsUserDtoConverter.convert(updatedHogwartsUser);
+
+        return new ApiResponse(
+                true,
+                StatusCode.SUCCESS,
+                "Update Success",
+                hogwartsUserDto
+        );
     }
 
     @DeleteMapping("/{userId}")

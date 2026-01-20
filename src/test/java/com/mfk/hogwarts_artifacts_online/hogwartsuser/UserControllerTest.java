@@ -1,6 +1,7 @@
 package com.mfk.hogwarts_artifacts_online.hogwartsuser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserDto;
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserRequest;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
 import com.mfk.hogwarts_artifacts_online.system.exception.ObjectNotFoundException;
@@ -20,9 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -189,6 +190,109 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
                 .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
                 .andExpect(jsonPath("$.data.password").value("password must contain at least one letter and one number"))
+                .andExpect(jsonPath("$.data.username").value("invalid username format"));
+    }
+    @Test
+    void testUpdateUserByIdSuccess() throws Exception {
+        //Given
+        HogwartsUserDto request = new HogwartsUserDto(
+                null,
+                "mohamed123456",
+                true,
+                "new_admin"
+        );
+        String json = this.objectMapper.writeValueAsString(request);
+
+        HogwartsUser hogwartsUser = new HogwartsUser();
+        hogwartsUser.setUsername("mohamed123456");
+        hogwartsUser.setId(1);
+        hogwartsUser.setRoles("new_admin");
+        hogwartsUser.setEnabled(false);
+
+
+        given(hogwartsUserService.updateById(eq(1), Mockito.any(HogwartsUser.class)))
+                .willReturn(hogwartsUser);
+        //When & Then
+        this.mockMvc.perform(put(baseUrl + "/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Update Success"))
+                .andExpect(jsonPath("$.data.id").value(hogwartsUser.getId()))
+                .andExpect(jsonPath("$.data.username").value(hogwartsUser.getUsername()))
+                .andExpect(jsonPath("$.data.enabled").value(hogwartsUser.isEnabled()))
+                .andExpect(jsonPath("$.data.roles").value(hogwartsUser.getRoles()));
+    }
+    @Test
+    void testUpdateUserByIdErrorUserNotFound() throws Exception {
+        //Given
+        HogwartsUserDto request = new HogwartsUserDto(
+                null,
+                "mohamed123456",
+                true,
+                "new_admin"
+        );
+        String json = this.objectMapper.writeValueAsString(request);
+
+        given(hogwartsUserService.updateById(eq(1), Mockito.any(HogwartsUser.class)))
+                .willThrow(new ObjectNotFoundException("user",1));
+        //When & Then
+        this.mockMvc.perform(put(baseUrl+"/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find user with id 1 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+    @Test
+    void testUpdateUserByIdErrorArgumentsAreRequired() throws Exception {
+        //Given
+        HogwartsUserDto request = new HogwartsUserDto(
+                null,
+                null,
+                false,
+                null
+        );
+        String json = this.objectMapper.writeValueAsString(request);
+
+        //When & Then
+        this.mockMvc.perform(put(baseUrl + "/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
+                .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
+                .andExpect(jsonPath("$.data.username").value("username is required"))
+                .andExpect(jsonPath("$.data.roles").value("roles are required"));
+    }
+    @Test
+    void testUpdateUserByIdErrorArgumentsAreInvalid() throws Exception {
+        //Given
+        HogwartsUserDto request = new HogwartsUserDto(
+                null,
+                "mk",
+                true,
+                "user"
+        );
+        String json = this.objectMapper.writeValueAsString(request);
+
+        //When & Then
+        this.mockMvc.perform(put(baseUrl + "/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
+                .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
                 .andExpect(jsonPath("$.data.username").value("invalid username format"));
     }
 }

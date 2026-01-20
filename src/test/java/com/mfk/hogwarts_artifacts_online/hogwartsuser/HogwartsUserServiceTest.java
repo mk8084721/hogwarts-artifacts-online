@@ -122,14 +122,54 @@ class HogwartsUserServiceTest {
                 .isEqualTo(1);
         assertThat(savedHogwartsUser.getUsername())
                 .isEqualTo(users.get(0).getUsername());
-        assertThat(savedHogwartsUser.getId())
-                .isEqualTo(users.get(0).getId());
         assertThat(savedHogwartsUser.getRoles())
                 .isEqualTo(users.get(0).getRoles());
         assertThat(savedHogwartsUser.isEnabled())
                 .isEqualTo(users.get(0).isEnabled());
 
         verify(hogwartsUserRepository,times(1)).save(Mockito.any(HogwartsUser.class));
+    }
+    @Test
+    void testUpdateByIdSuccess() {
+        //Given
+        HogwartsUser update = new HogwartsUser();
+        update.setId(2);
+        update.setUsername("newUsername");
+        update.setEnabled(false);
+        update.setRoles("new_Role");
+        given(this.hogwartsUserRepository.findById(2))
+                .willReturn(Optional.of(users.get(1)));
+        given(this.hogwartsUserRepository.save(users.get(1)))
+                .willReturn(update);
+        //When
+        HogwartsUser updatedHogwartsUser = this.hogwartsUserService.updateById(2,users.get(1));
+        //Then
+        assertThat(updatedHogwartsUser.getId())
+                .isEqualTo(2);
+        assertThat(updatedHogwartsUser.getUsername())
+                .isEqualTo(update.getUsername());
+        assertThat(updatedHogwartsUser.getRoles())
+                .isEqualTo(update.getRoles());
+        assertThat(updatedHogwartsUser.isEnabled())
+                .isEqualTo(update.isEnabled());
+
+        verify(hogwartsUserRepository,times(1)).save(users.get(1));
+        verify(hogwartsUserRepository,times(1)).findById(2);
+    }
+    @Test
+    void testUpdateByIdErrorUserNotFound() {
+        //Given
+        given(this.hogwartsUserRepository.findById(Mockito.any(Integer.class)))
+                .willReturn(Optional.empty());
+        //When
+        Throwable thrown = catchThrowable(()-> {
+            this.hogwartsUserService.updateById(1 , users.get(0));
+        });
+        //Then
+        assertThat(thrown)
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find user with id 1 :(");
+        verify(hogwartsUserRepository, times(1)).findById(1);
     }
 
 }

@@ -25,4 +25,16 @@ public class HogwartsUserService {
     public HogwartsUser save(HogwartsUser newUser) {
         return hogwartsUserRepository.save(newUser);
     }
+
+    public HogwartsUser updateById(Integer userId, HogwartsUser update) {
+        HogwartsUser foundedHogwartsUser = hogwartsUserRepository.findById(userId)
+                .orElseThrow(()->new ObjectNotFoundException("user",userId));
+
+        foundedHogwartsUser.setId(userId);
+        foundedHogwartsUser.setUsername(update.getUsername());
+        foundedHogwartsUser.setEnabled(update.isEnabled());
+        foundedHogwartsUser.setRoles(update.getRoles());
+
+        return hogwartsUserRepository.save(foundedHogwartsUser);
+    }
 }
