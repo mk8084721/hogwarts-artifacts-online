@@ -12,8 +12,9 @@ public record HogwartsUserDto(
                 message = "Invalid username format"
         )
         String username,
+        @NotNull(message = "enabled is required")
         boolean enabled,
-        @NotEmpty
+        @NotEmpty(message = "roles are required")
         String roles
 ) {
 }

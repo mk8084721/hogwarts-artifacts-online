@@ -82,16 +82,19 @@ public class DBDataInitializer implements CommandLineRunner {
 
         HogwartsUser user1 = new HogwartsUser();
         user1.setUsername("john");
+        user1.setPassword("User1123456");
         user1.setEnabled(true);
         user1.setRoles("admin user");
 
         HogwartsUser user2 = new HogwartsUser();
-        user2.setUsername("eric");
+        user2.setUsername("user_eric");
+        user2.setPassword("User2123456");
         user2.setEnabled(true);
         user2.setRoles("user");
 
         HogwartsUser user3 = new HogwartsUser();
-        user3.setUsername("tom");
+        user3.setUsername("user_tom");
+        user3.setPassword("User3123456");
         user3.setEnabled(false);
         user3.setRoles("user");
 

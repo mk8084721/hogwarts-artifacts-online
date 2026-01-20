@@ -110,5 +110,26 @@ class HogwartsUserServiceTest {
                 .hasMessage("Could not find user with id 1 :(");
         verify(hogwartsUserRepository, times(1)).findById(1);
     }
+    @Test
+    void testSaveSuccess() {
+        //Given
+        given(this.hogwartsUserRepository.save(Mockito.any(HogwartsUser.class)))
+                .willReturn(users.get(0));
+        //When
+        HogwartsUser savedHogwartsUser = this.hogwartsUserService.save(users.get(0));
+        //Then
+        assertThat(savedHogwartsUser.getId())
+                .isEqualTo(1);
+        assertThat(savedHogwartsUser.getUsername())
+                .isEqualTo(users.get(0).getUsername());
+        assertThat(savedHogwartsUser.getId())
+                .isEqualTo(users.get(0).getId());
+        assertThat(savedHogwartsUser.getRoles())
+                .isEqualTo(users.get(0).getRoles());
+        assertThat(savedHogwartsUser.isEnabled())
+                .isEqualTo(users.get(0).isEnabled());
+
+        verify(hogwartsUserRepository,times(1)).save(Mockito.any(HogwartsUser.class));
+    }
 
 }

@@ -21,4 +21,8 @@ public class HogwartsUserService {
         return hogwartsUserRepository.findById(userId)
                 .orElseThrow(()->new ObjectNotFoundException("user",userId));
     }
+
+    public HogwartsUser save(HogwartsUser newUser) {
+        return hogwartsUserRepository.save(newUser);
+    }
 }

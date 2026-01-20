@@ -2,6 +2,7 @@ package com.mfk.hogwarts_artifacts_online.hogwartsuser;
 
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.converter.HogwartsUserToHogwartsUserDtoConverter;
 import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserDto;
+import com.mfk.hogwarts_artifacts_online.hogwartsuser.dto.HogwartsUserRequest;
 import com.mfk.hogwarts_artifacts_online.system.ApiResponse;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
 import jakarta.validation.Valid;
@@ -43,8 +44,22 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse addUser(@RequestBody @Valid HogwartsUserDto newUser){
-        return null;
+    public ApiResponse saveUser(@RequestBody @Valid HogwartsUserRequest request){
+        HogwartsUser requestHogwartsUser = new HogwartsUser();
+        requestHogwartsUser.setUsername(request.username());
+        requestHogwartsUser.setPassword(request.password());
+        requestHogwartsUser.setEnabled(request.enabled());
+        requestHogwartsUser.setRoles(request.roles());
+
+        HogwartsUser savedHogwartsUser = hogwartsUserService.save(requestHogwartsUser);
+        HogwartsUserDto hogwartsUserDto = hogwartsUserToHogwartsUserDtoConverter
+                .convert(savedHogwartsUser);
+        return new ApiResponse(
+                true,
+                StatusCode.SUCCESS,
+                "Add Success",
+                hogwartsUserDto
+        );
     }
 
     @PutMapping("/{userId}")
