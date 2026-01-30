@@ -3,6 +3,8 @@ package com.mfk.hogwarts_artifacts_online.system.exception;
 import com.mfk.hogwarts_artifacts_online.system.ApiResponse;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +42,17 @@ public class ExceptionHandlerAdvice {
                 StatusCode.INVALID_ARGUMENT,
                 "Provided arguments are invalid, see data for details.",
                 map
+        );
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ApiResponse handleAuthenticationException(Exception ex){
+        return new ApiResponse(
+                false,
+                StatusCode.UNAUTHORIZED,
+                "username or password is incorrect",
+                ex.getMessage()
         );
     }
 
