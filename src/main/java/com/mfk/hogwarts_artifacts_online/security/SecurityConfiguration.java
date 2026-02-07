@@ -10,16 +10,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.KeyPair;
@@ -32,8 +34,14 @@ import java.security.interfaces.RSAPublicKey;
 public class SecurityConfiguration {
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
+    private final CustomBasicAuthenticationEntryPoint customBasicAuthenticationEntryPoint;
+    private final CustomBearerTokenAuthenticationEntryPoint customBearerTokenAuthenticationEntryPoint;
+    private final CustomBearerTokenAccessDeniedHandler customBearerTokenAccessDeniedHandler;
 
-    public SecurityConfiguration() throws NoSuchAlgorithmException {
+    public SecurityConfiguration(CustomBasicAuthenticationEntryPoint customBasicAuthenticationEntryPoint, CustomBearerTokenAuthenticationEntryPoint customBearerTokenAuthenticationEntryPoint, CustomBearerTokenAccessDeniedHandler customBearerTokenAccessDeniedHandler) throws NoSuchAlgorithmException {
+        this.customBasicAuthenticationEntryPoint = customBasicAuthenticationEntryPoint;
+        this.customBearerTokenAuthenticationEntryPoint = customBearerTokenAuthenticationEntryPoint;
+        this.customBearerTokenAccessDeniedHandler = customBearerTokenAccessDeniedHandler;
         // Generate a public/private key pair.
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048); //the generated key will have size of 2048 bits.
@@ -65,7 +73,12 @@ public class SecurityConfiguration {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 ) // this is for h2 browser console access
                 .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(this.customBasicAuthenticationEntryPoint))
+                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt()
+                        .and().authenticationEntryPoint(customBearerTokenAuthenticationEntryPoint)
+                        .accessDeniedHandler(customBearerTokenAccessDeniedHandler)
+                        )
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 
@@ -86,6 +99,19 @@ public class SecurityConfiguration {
     @Bean
     public JwtDecoder jwtDecoder(){
         return NimbusJwtDecoder.withPublicKey(this.publicKey).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
     }
 
 }

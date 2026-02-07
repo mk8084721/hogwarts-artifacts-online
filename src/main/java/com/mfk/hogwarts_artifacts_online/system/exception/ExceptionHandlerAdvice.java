@@ -3,8 +3,11 @@ package com.mfk.hogwarts_artifacts_online.system.exception;
 import com.mfk.hogwarts_artifacts_online.system.ApiResponse;
 import com.mfk.hogwarts_artifacts_online.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -52,6 +55,47 @@ public class ExceptionHandlerAdvice {
                 false,
                 StatusCode.UNAUTHORIZED,
                 "username or password is incorrect",
+                ex.getMessage()
+        );
+    }
+    @ExceptionHandler(AccountStatusException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ApiResponse handleAccountStatusException(Exception ex){
+        return new ApiResponse(
+                false,
+                StatusCode.UNAUTHORIZED,
+                "User account is abnormal",
+                ex.getMessage()
+        );
+    }
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ApiResponse handleInvalidBearerTokenException(Exception ex){
+        return new ApiResponse(
+                false,
+                StatusCode.UNAUTHORIZED,
+                "The access token provided is expired, revoked, malformed, or invalid for other reasons.",
+                ex.getMessage()
+        );
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    ApiResponse handleAccessDeniedException(Exception ex){
+        return new ApiResponse(
+                false,
+                StatusCode.FORBIDDEN,
+                "No permession",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    ApiResponse handleOtherException(Exception ex){
+        return new ApiResponse(
+                false,
+                StatusCode.INTERNAL_SERVER_ERROR,
+                "A server internal error occurs.",
                 ex.getMessage()
         );
     }
