@@ -26,7 +26,7 @@ public class DBDataInitializer implements CommandLineRunner {
 
         Artifact a1 = new Artifact();
         a1.setId("1250808601744904191");
-        a1.setName("Deluminator");
+        a1.setName("Deluminator(modified)");
         a1.setDescription("A Deluminator is a device invented by Albus Dumbledore...");
         a1.setImageUrl("ImageUrl");
 //        a1.setOwner(dumbledore);
